@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
                 .setDoubleTapZoom(-1f) // Falls back to max zoom level
                 .setPanEnabled(true)
                 .setZoomEnabled(true)
-                .setDoubleTapEnabled(true)
+                .setDoubleTapEnabled(false)
                 .setRotationEnabled(false)
                 .setRestrictRotation(false)
                 .setOverscrollDistance(0f, 0f)
@@ -42,17 +42,16 @@ public class MainActivity extends AppCompatActivity {
 
         final ImageView backImageView = findViewById(R.id.back);
         final ImageView frontImageView = findViewById(R.id.front);
-        //backImageView.setImageResource(R.drawable.back);
 
         VectorChildFinder vector = new VectorChildFinder(this, R.drawable.front, frontImageView);
         final VectorDrawableCompat.VFullPath s1 = vector.findPathByName("s1");
         final VectorDrawableCompat.VFullPath s2 = vector.findPathByName("s2");
 
-        //s1.setFillColor(Color.RED);
-        //s1.setFillAlpha(128);
-
 
         backImageView.setOnTouchListener(new View.OnTouchListener() {
+
+            final int DOUBLE_TAP_DURATION = 500;
+            long tapTime = System.currentTimeMillis();
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -63,23 +62,26 @@ public class MainActivity extends AppCompatActivity {
 
                 if (action == MotionEvent.ACTION_DOWN) {
 
-                    backImageView.setDrawingCacheEnabled(true);
-                    Bitmap hotspots = Bitmap.createBitmap(backImageView.getDrawingCache());
-                    backImageView.setDrawingCacheEnabled(false);
+                    if (System.currentTimeMillis() - tapTime < DOUBLE_TAP_DURATION) {
+                        backImageView.setDrawingCacheEnabled(true);
+                        Bitmap hotspots = Bitmap.createBitmap(backImageView.getDrawingCache());
+                        backImageView.setDrawingCacheEnabled(false);
 
-                    int touchColor = hotspots.getPixel(x, y);
-                    Log.d("Petros", Integer.toString(touchColor));
+                        int touchColor = hotspots.getPixel(x, y);
+                        Log.d("Petros", Integer.toString(touchColor));
 
-                    //s1.setFillColor(Color.RED);
+                        //s1.setFillColor(Color.RED);
 
-                    if (touchColor == 0xffbe0000) {
-                        toggleAlpha(s1);
-                        frontImageView.invalidate();
+                        if (touchColor == 0xffbe0000) {
+                            toggleAlpha(s1);
+                            frontImageView.invalidate();
+                        }
+                        if (touchColor == 0xff00be00) {
+                            toggleAlpha(s2);
+                            frontImageView.invalidate();
+                        }
                     }
-                    if (touchColor == 0xff00be00) {
-                        toggleAlpha(s2);
-                        frontImageView.invalidate();
-                    }
+                    tapTime = System.currentTimeMillis();
 
                 }
 
