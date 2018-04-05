@@ -19,16 +19,17 @@
             <!-- Layout content goes here -->
             <ImageView
                 android:id="@+id/front"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/front" />
-
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/paok_front" />
             <ImageView
                 android:id="@+id/back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:alpha="0"
-                android:src="@drawable/back" />
+                android:src="@drawable/paok_back" />
+
+
         </FrameLayout>
 
     </com.alexvasilkov.gestures.views.GestureFrameLayout>
