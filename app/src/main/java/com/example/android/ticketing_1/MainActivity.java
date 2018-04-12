@@ -1,5 +1,7 @@
-package com.example.android.test_shapes_1;
+package com.example.android.ticketing_1;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,15 +18,12 @@ import com.devs.vectorchildfinder.VectorDrawableCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         GestureView gestureView = findViewById(R.id.gestureView);
-
         gestureView.getController().getSettings()
                 .setMaxZoom(10f)
                 .setDoubleTapZoom(-1f) // Falls back to max zoom level
@@ -41,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         final ImageView backImageView = findViewById(R.id.back);
         final ImageView frontImageView = findViewById(R.id.front);
+
+        final Intent intent = new Intent(this, GateActivity.class);
 
         /*
         VectorChildFinder vector = new VectorChildFinder(this, R.drawable.front, frontImageView);
@@ -81,7 +82,10 @@ public class MainActivity extends AppCompatActivity {
                             //frontImageView.invalidate();
                         }
                         if (touchColor == 0xff3c0000) {
-                            Toast.makeText(MainActivity.this, "Gate 111", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MainActivity.this, "Gate 111", Toast.LENGTH_SHORT).show();
+
+                            startActivity(intent);
+
                             //toggleAlpha(s2);
                             //frontImageView.invalidate();
                         }
@@ -96,8 +100,5 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void toggleAlpha(VectorDrawableCompat.VFullPath seat) {
-        if (seat.getFillAlpha() != 128) seat.setFillAlpha(128);
-        else seat.setFillAlpha(1);
-    }
+
 }

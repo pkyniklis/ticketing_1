@@ -3,10 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.ticketing_1.MainActivity">
+    android:padding="36dp"
+    tools:context="com.example.android.ticketing_1.GateActivity">
 
     <com.alexvasilkov.gestures.views.GestureFrameLayout
-        android:id="@+id/gestureView"
+        android:id="@+id/gate_gestureView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -18,18 +19,20 @@
 
             <!-- Layout content goes here -->
             <ImageView
-                android:id="@+id/front"
+                android:id="@+id/gate_front"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/paok_front" />
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/gate111_back" />
             <ImageView
-                android:id="@+id/back"
+                android:id="@+id/gate_back"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
                 android:alpha="0"
-                android:src="@drawable/paok_back" />
-
-
+                android:src="@drawable/gate111_back" />
         </FrameLayout>
 
     </com.alexvasilkov.gestures.views.GestureFrameLayout>

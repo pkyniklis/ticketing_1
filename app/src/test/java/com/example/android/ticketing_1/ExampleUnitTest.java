@@ -1,4 +1,4 @@
-package com.example.android.test_shapes_1;
+package com.example.android.ticketing_1;
 
 import org.junit.Test;
 
