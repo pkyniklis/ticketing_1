@@ -1,6 +1,5 @@
 package com.example.android.ticketing_1;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -13,8 +12,6 @@ import android.widget.Toast;
 
 import com.alexvasilkov.gestures.Settings;
 import com.alexvasilkov.gestures.views.interfaces.GestureView;
-import com.devs.vectorchildfinder.VectorDrawableCompat;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,15 +36,8 @@ public class MainActivity extends AppCompatActivity {
                 .setGravity(Gravity.CENTER);
 
         final ImageView backImageView = findViewById(R.id.back);
-        final ImageView frontImageView = findViewById(R.id.front);
 
         final Intent intent = new Intent(this, GateActivity.class);
-
-        /*
-        VectorChildFinder vector = new VectorChildFinder(this, R.drawable.front, frontImageView);
-        final VectorDrawableCompat.VFullPath s1 = vector.findPathByName("s1");
-        final VectorDrawableCompat.VFullPath s2 = vector.findPathByName("s2");
-        */
 
         backImageView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -69,36 +59,24 @@ public class MainActivity extends AppCompatActivity {
                         backImageView.setDrawingCacheEnabled(false);
 
                         int touchColor = hotspots.getPixel(x, y);
-                        //Log.d("Petros", Integer.toString(touchColor));
 
                         if (touchColor == 0xff140000) {
-                            Toast.makeText(MainActivity.this, "Gate 218", Toast.LENGTH_SHORT).show();
-                            //toggleAlpha(s1);
-                            //frontImageView.invalidate();
+                            intent.putExtra("Gate", "218");
+                            startActivity(intent);
                         }
                         if (touchColor == 0xff280000) {
                             Toast.makeText(MainActivity.this, "Gate 219", Toast.LENGTH_SHORT).show();
-                            //toggleAlpha(s2);
-                            //frontImageView.invalidate();
                         }
                         if (touchColor == 0xff3c0000) {
-                            //Toast.makeText(MainActivity.this, "Gate 111", Toast.LENGTH_SHORT).show();
-
+                            intent.putExtra("Gate", "111");
                             startActivity(intent);
-
-                            //toggleAlpha(s2);
-                            //frontImageView.invalidate();
                         }
                     }
                     tapTime = System.currentTimeMillis();
-
                 }
 
                 return false;
             }
         });
-
     }
-
-
 }

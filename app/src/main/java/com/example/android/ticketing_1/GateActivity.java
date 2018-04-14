@@ -1,18 +1,21 @@
 package com.example.android.ticketing_1;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.alexvasilkov.gestures.Settings;
 import com.alexvasilkov.gestures.views.interfaces.GestureView;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
+
+import java.util.ArrayList;
 
 public class GateActivity extends AppCompatActivity {
 
@@ -36,16 +39,60 @@ public class GateActivity extends AppCompatActivity {
                 .setFitMethod(Settings.Fit.INSIDE)
                 .setGravity(Gravity.CENTER);
 
+        //Load stub images. These will change later.
         final ImageView backImageView = findViewById(R.id.gate_back);
         final ImageView frontImageView = findViewById(R.id.gate_front);
 
-        backImageView.setImageResource(R.drawable.gate111_back);
-        frontImageView.setImageResource(R.drawable.gate111_back);
+        // Get gateNo from intent
+        Intent intent = getIntent();
+        String gateNo = intent.getStringExtra("Gate");
+        //Toast.makeText(GateActivity.this, "Gate "+gateNo, Toast.LENGTH_SHORT).show();
 
-        VectorChildFinder vector = new VectorChildFinder(this, R.drawable.gate111_front, frontImageView);
-        final VectorDrawableCompat.VFullPath r16s1 = vector.findPathByName("r16s1");
-        final VectorDrawableCompat.VFullPath r16s2 = vector.findPathByName("r16s2");
+        // The ArrayList will be filled with data from the database.
+        // The gateNo will be used to query the database.
+        final ArrayList<Seat> seats = new ArrayList<>();
+        if (gateNo.equals("111")) {
+            seats.add(new Seat(gateNo, 16, 1, true, 0xff010000));
+            seats.add(new Seat(gateNo, 16, 2, true, 0xff020000));
+            seats.add(new Seat(gateNo, 16, 3, false, 0xff030000));
+            seats.add(new Seat(gateNo, 16, 4, true, 0xff040000));
+            seats.add(new Seat(gateNo, 16, 5, true, 0xff050000));
+            seats.add(new Seat(gateNo, 15, 1, true, 0xff170000));
+            seats.add(new Seat(gateNo, 15, 2, true, 0xff180000));
+            seats.add(new Seat(gateNo, 15, 3, true, 0xff190000));
+            seats.add(new Seat(gateNo, 15, 4, false, 0xff200000));
+        }
+        if (gateNo.equals("218")) {
+            seats.add(new Seat(gateNo, 16, 1, true, 0xff010000));
+            seats.add(new Seat(gateNo, 16, 2, false, 0xff020000));
+            seats.add(new Seat(gateNo, 16, 3, false, 0xff030000));
+            seats.add(new Seat(gateNo, 16, 4, true, 0xff040000));
+            seats.add(new Seat(gateNo, 15, 1, true, 0xff170000));
+            seats.add(new Seat(gateNo, 15, 2, true, 0xff180000));
+            seats.add(new Seat(gateNo, 15, 3, false, 0xff190000));
+            seats.add(new Seat(gateNo, 15, 4, false, 0xff200000));
+        }
 
+        // Using the gateNo, load the correct imageViews from the resources.
+        String backGatename = "gate" + gateNo + "_back";
+        String frontGatename = "gate" + gateNo + "_front";
+        Context context = backImageView.getContext();
+        int backID = context.getResources().getIdentifier(backGatename, "drawable", context.getPackageName());
+        int frontID = context.getResources().getIdentifier(frontGatename, "drawable", context.getPackageName());
+        backImageView.setImageResource(backID);
+        frontImageView.setImageResource(frontID);
+
+        final VectorChildFinder vector = new VectorChildFinder(this, frontID, frontImageView);
+
+        // Paint gray all seats that are not free
+        for (Seat seat : seats) {
+            if (!seat.isFree()) {
+                String seatPathName = "r" + seat.getRow() + "s" + seat.getCol();
+                final VectorDrawableCompat.VFullPath seatPath = vector.findPathByName(seatPathName);
+                seatPath.setFillColor(0xff9e9e9e);
+            }
+        }
+        frontImageView.invalidate();
 
         backImageView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -61,41 +108,28 @@ public class GateActivity extends AppCompatActivity {
 
                 if (action == MotionEvent.ACTION_DOWN) {
 
+                    // if double tap has been detected
                     if (System.currentTimeMillis() - tapTime < DOUBLE_TAP_DURATION) {
                         backImageView.setDrawingCacheEnabled(true);
                         Bitmap hotspots = Bitmap.createBitmap(backImageView.getDrawingCache());
                         backImageView.setDrawingCacheEnabled(false);
 
                         int touchColor = hotspots.getPixel(x, y);
-                        //Log.d("Petros", Integer.toString(touchColor));
 
-                        if (touchColor == 0xff010000) {
-                            Toast.makeText(GateActivity.this, "r16s1", Toast.LENGTH_SHORT).show();
-                            toggleColor(r16s1);
-                            frontImageView.invalidate();
-                        }
-                        if (touchColor == 0xff020000) {
-                            Toast.makeText(GateActivity.this, "r16s2", Toast.LENGTH_SHORT).show();
-                            toggleColor(r16s2);
-                            frontImageView.invalidate();
-                        }
-                        if (touchColor == 0xff280000) {
-                            //Toast.makeText(MainActivity.this, "Gate 219", Toast.LENGTH_SHORT).show();
-                            //toggleAlpha(s2);
-                            //frontImageView.invalidate();
-                        }
-                        if (touchColor == 0xff3c0000) {
-                            //Toast.makeText(MainActivity.this, "Gate 111", Toast.LENGTH_SHORT).show();
-
-
-                            //toggleAlpha(s2);
-                            //frontImageView.invalidate();
+                        // Loop through all seats and find the one with the same color
+                        for (Seat seat : seats) {
+                            int seatColor = seat.getColor();
+                            if (touchColor == seatColor && seat.isFree()) {
+                                // For this seat, do something (temporarily change color)
+                                String seatPathName = "r" + seat.getRow() + "s" + seat.getCol();
+                                final VectorDrawableCompat.VFullPath seatPath = vector.findPathByName(seatPathName);
+                                toggleColor(seatPath);
+                                frontImageView.invalidate();
+                            }
                         }
                     }
                     tapTime = System.currentTimeMillis();
-
                 }
-
                 return false;
             }
         });
