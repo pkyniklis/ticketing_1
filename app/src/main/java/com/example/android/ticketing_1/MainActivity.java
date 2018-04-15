@@ -1,17 +1,21 @@
 package com.example.android.ticketing_1;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.alexvasilkov.gestures.Settings;
 import com.alexvasilkov.gestures.views.interfaces.GestureView;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
         final Intent intent = new Intent(this, GateActivity.class);
 
+        final ArrayList<Gate> gates = new ArrayList<>();
+        gates.add(new Gate("111", 7, 15, 0xff3c0000));
+        gates.add(new Gate("218", 4, 12, 0xff140000));
+        gates.add(new Gate("219", 4, 10, 0xff280000));
+
         backImageView.setOnTouchListener(new View.OnTouchListener() {
 
             final int DOUBLE_TAP_DURATION = 500;
@@ -47,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int action = event.getAction();
-
                 final int x = (int) event.getX();
                 final int y = (int) event.getY();
 
@@ -60,16 +68,38 @@ public class MainActivity extends AppCompatActivity {
 
                         int touchColor = hotspots.getPixel(x, y);
 
-                        if (touchColor == 0xff140000) {
-                            intent.putExtra("Gate", "218");
-                            startActivity(intent);
-                        }
-                        if (touchColor == 0xff280000) {
-                            Toast.makeText(MainActivity.this, "Gate 219", Toast.LENGTH_SHORT).show();
-                        }
-                        if (touchColor == 0xff3c0000) {
-                            intent.putExtra("Gate", "111");
-                            startActivity(intent);
+                        // Loop through all gates and find the one with the same color
+                        for (Gate gate : gates) {
+                            int seatColor = gate.getColor();
+                            if (touchColor == seatColor) {
+                                final Gate chosenGate = gate;
+                                Context context = backImageView.getContext();
+                                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                                dialogBuilder.setMessage("Gate " + chosenGate.getGateNo() + "\n" +
+                                        "Price : " + chosenGate.getPrice() + " euro \n" +
+                                        "Free seats : " + chosenGate.getFreeSeats());
+                                dialogBuilder.setCancelable(true);
+
+                                dialogBuilder.setPositiveButton(
+                                        "Buy tickets",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                intent.putExtra("Gate", chosenGate.getGateNo());
+                                                startActivity(intent);
+                                            }
+                                        });
+
+                                dialogBuilder.setNegativeButton(
+                                        "Cancel",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                dialog.cancel();
+                                            }
+                                        });
+
+                                AlertDialog alert = dialogBuilder.create();
+                                alert.show();
+                            }
                         }
                     }
                     tapTime = System.currentTimeMillis();

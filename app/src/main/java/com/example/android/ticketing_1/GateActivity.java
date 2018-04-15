@@ -42,6 +42,7 @@ public class GateActivity extends AppCompatActivity {
         //Load stub images. These will change later.
         final ImageView backImageView = findViewById(R.id.gate_back);
         final ImageView frontImageView = findViewById(R.id.gate_front);
+        final ImageView viewImageView = findViewById(R.id.gate_view);
 
         // Get gateNo from intent
         Intent intent = getIntent();
@@ -72,15 +73,26 @@ public class GateActivity extends AppCompatActivity {
             seats.add(new Seat(gateNo, 15, 3, false, 0xff190000));
             seats.add(new Seat(gateNo, 15, 4, false, 0xff200000));
         }
+        if (gateNo.equals("219")) {
+            seats.add(new Seat(gateNo, 1, 5, false, 0xff000100));
+            seats.add(new Seat(gateNo, 1, 6, true, 0xff000200));
+            seats.add(new Seat(gateNo, 1, 7, true, 0xff000300));
+            seats.add(new Seat(gateNo, 1, 8, true, 0xff000400));
+        }
+
+        setTitle("Gate " + gateNo);
 
         // Using the gateNo, load the correct imageViews from the resources.
-        String backGatename = "gate" + gateNo + "_back";
-        String frontGatename = "gate" + gateNo + "_front";
+        String backGateName = "gate" + gateNo + "_back";
+        String frontGateName = "gate" + gateNo + "_front";
+        String viewName = "view" + gateNo;
         Context context = backImageView.getContext();
-        int backID = context.getResources().getIdentifier(backGatename, "drawable", context.getPackageName());
-        int frontID = context.getResources().getIdentifier(frontGatename, "drawable", context.getPackageName());
+        int backID = context.getResources().getIdentifier(backGateName, "drawable", context.getPackageName());
+        int frontID = context.getResources().getIdentifier(frontGateName, "drawable", context.getPackageName());
+        int viewID = context.getResources().getIdentifier(viewName, "drawable", context.getPackageName());
         backImageView.setImageResource(backID);
         frontImageView.setImageResource(frontID);
+        viewImageView.setImageResource(viewID);
 
         final VectorChildFinder vector = new VectorChildFinder(this, frontID, frontImageView);
 
@@ -95,25 +107,21 @@ public class GateActivity extends AppCompatActivity {
         frontImageView.invalidate();
 
         backImageView.setOnTouchListener(new View.OnTouchListener() {
-
             final int DOUBLE_TAP_DURATION = 500;
             long tapTime = System.currentTimeMillis();
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int action = event.getAction();
-
                 final int x = (int) event.getX();
                 final int y = (int) event.getY();
 
                 if (action == MotionEvent.ACTION_DOWN) {
-
                     // if double tap has been detected
                     if (System.currentTimeMillis() - tapTime < DOUBLE_TAP_DURATION) {
                         backImageView.setDrawingCacheEnabled(true);
                         Bitmap hotspots = Bitmap.createBitmap(backImageView.getDrawingCache());
                         backImageView.setDrawingCacheEnabled(false);
-
                         int touchColor = hotspots.getPixel(x, y);
 
                         // Loop through all seats and find the one with the same color
@@ -133,7 +141,6 @@ public class GateActivity extends AppCompatActivity {
                 return false;
             }
         });
-
     }
 
     private void toggleAlpha(VectorDrawableCompat.VFullPath seat) {
